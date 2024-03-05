@@ -39,6 +39,7 @@ typedef enum
     C,
     D,
     E,
+
     F,
     H,
     L,
@@ -141,11 +142,13 @@ void set_16bit_register(Registers *registers, ArithmeticTarget reg1, ArithmeticT
         registers->H = (value & 0xFF00) >> 8;
         break;
     case L:
+
         registers->L = (value & 0xFF00) >> 8;
         break;
     }
     switch (reg2)
     {
+
     case A:
         registers->A = (value & 0xFF);
         break;
@@ -168,6 +171,7 @@ void set_16bit_register(Registers *registers, ArithmeticTarget reg1, ArithmeticT
         registers->H = (value & 0xFF);
         break;
     case L:
+
         registers->L = (value & 0xFF);
         break;
     }
