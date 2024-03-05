@@ -39,8 +39,8 @@ typedef enum
     C,
     D,
     E,
-    G,
     H,
+    L,
     null
 } ArithmeticTarget;
 
@@ -206,14 +206,53 @@ void excecute(CPU *cpu, Instruction instruction, ArithmeticTarget target)
     {
         bool overflow = false;
         Registers *registers = &(cpu->registers);
-        uint8_t value = registers->C;
+        uint8_t value;
         switch (target)
         {
-        case C:
+        case A:
         {
+            value = registers->A;
             add(registers, value, &overflow);
             break;
         }
+        case B:
+        {
+            value = registers->B;
+            add(registers, value, &overflow);
+            break;
+        }
+        case C:
+        {
+            value = registers->C;
+            add(registers, value, &overflow);
+            break;
+        }
+        case D:
+        {
+            value = registers->D;
+            add(registers, value, &overflow);
+            break;
+        }
+        case E:
+        {
+            value = registers->E;
+            add(registers, value, &overflow);
+            break;
+        }
+        case H:
+        {
+            value = registers->H;
+            add(registers, value, &overflow);
+            break;
+        }
+        case L:
+        {
+            value = registers->L;
+            add(registers, value, &overflow);
+            break;
+        }
+        case null:
+            break;
         }
         break;
     }
@@ -237,9 +276,9 @@ void add(Registers *registers, uint8_t value, bool *overflow)
 int main()
 {
     FlagsRegister flags = {false, false, false, false};
-    Registers registers1 = {255, 0, 1, 0, 0, flags, 0, 0};
+    Registers registers1 = {12, 0, 0, 0, 5, flags, 0, 0};
     CPU cpu1 = {registers1};
-    excecute(&cpu1, ADD, C);
+    excecute(&cpu1, ADD, E);
     printf("register A: %d\n", cpu1.registers.A);
     printf("ZERO: %d\n", cpu1.registers.F.zero);
     printf("SUBTRACT: %d\n", cpu1.registers.F.subtract);
