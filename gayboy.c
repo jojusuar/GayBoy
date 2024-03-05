@@ -39,131 +39,139 @@ typedef enum
     C,
     D,
     E,
+
+    F,
     H,
     L,
+    BC,
+    DE,
+    HL,
     null
 } ArithmeticTarget;
 
-void set_16bit_register(Registers *registers, char reg1, char reg2, uint16_t value);
-uint16_t get_16bit_register(Registers *registers, char reg1, char reg2);
+void set_16bit_register(Registers *registers, ArithmeticTarget reg1, ArithmeticTarget reg2, uint16_t value);
+uint16_t get_16bit_register(Registers *registers, ArithmeticTarget reg1, ArithmeticTarget reg2);
 uint8_t flags_to_8bit(FlagsRegister flagsregister);
 FlagsRegister flags_from_8bit(uint8_t value);
 void excecute(CPU *cpu, Instruction instruction, ArithmeticTarget target);
 void add(Registers *registers, uint8_t value, bool *overflow);
 
-uint16_t get_16bit_register(Registers *registers, char reg1, char reg2)
+uint16_t get_16bit_register(Registers *registers, ArithmeticTarget reg1, ArithmeticTarget reg2)
 {
     uint16_t xy = 0;
     switch (reg1)
     {
-    case 'A':
+    case A:
         xy = registers->A << 8;
         break;
-    case 'B':
+    case B:
         xy = registers->B << 8;
         break;
-    case 'C':
+    case C:
         xy = registers->C << 8;
         break;
-    case 'D':
+    case D:
         xy = registers->D << 8;
         break;
-    case 'E':
+    case E:
         xy = registers->E << 8;
         break;
-    case 'F':
+    case F:
         xy = flags_to_8bit(registers->F) << 8;
         break;
-    case 'H':
+    case H:
         xy = registers->H << 8;
         break;
-    case 'L':
+    case L:
         xy = registers->L << 8;
         break;
     }
     switch (reg2)
     {
-    case 'A':
+    case A:
         xy |= registers->A;
         break;
-    case 'B':
+    case B:
         xy |= registers->B;
         break;
-    case 'C':
+    case C:
         xy |= registers->C;
         break;
-    case 'D':
+    case D:
         xy |= registers->D;
         break;
-    case 'E':
+    case E:
         xy |= registers->E;
         break;
-    case 'F':
+    case F:
         xy |= flags_to_8bit(registers->F);
         break;
-    case 'H':
+    case H:
         xy |= registers->H;
         break;
-    case 'L':
+    case L:
         xy |= registers->L;
         break;
     }
     return xy;
 }
 
-void set_16bit_register(Registers *registers, char reg1, char reg2, uint16_t value)
+void set_16bit_register(Registers *registers, ArithmeticTarget reg1, ArithmeticTarget reg2, uint16_t value)
 {
     switch (reg1)
     {
-    case 'A':
+    case A:
         registers->A = (value & 0xFF00) >> 8;
         break;
-    case 'B':
+    case B:
         registers->B = (value & 0xFF00) >> 8;
         break;
-    case 'C':
+    case C:
         registers->C = (value & 0xFF00) >> 8;
         break;
-    case 'D':
+    case D:
         registers->D = (value & 0xFF00) >> 8;
         break;
-    case 'E':
+    case E:
         registers->E = (value & 0xFF00) >> 8;
         break;
-    case 'F':
+    case F:
         registers->F = flags_from_8bit((value & 0xFF00) >> 8);
         break;
-    case 'H':
+    case H:
         registers->H = (value & 0xFF00) >> 8;
         break;
-    case 'L':
+    case L:
+
         registers->L = (value & 0xFF00) >> 8;
         break;
     }
     switch (reg2)
     {
-    case 'A':
+
+    case A:
         registers->A = (value & 0xFF);
         break;
-    case 'B':
+    case B:
         registers->B = (value & 0xFF);
         break;
-    case 'C':
+    case C:
         registers->C = (value & 0xFF);
         break;
-    case 'D':
+    case D:
         registers->D = (value & 0xFF);
         break;
-    case 'E':
+    case E:
         registers->E = (value & 0xFF);
         break;
-    case 'F':
+    case F:
         registers->F = flags_from_8bit(value & 0xFF);
         break;
-    case 'H':
+    case H:
         registers->H = (value & 0xFF);
         break;
-    case 'L':
+    case L:
+
         registers->L = (value & 0xFF);
         break;
     }
@@ -251,6 +259,24 @@ void excecute(CPU *cpu, Instruction instruction, ArithmeticTarget target)
             add(registers, value, &overflow);
             break;
         }
+        case BC:
+        {
+            value = get_16bit_register(registers, B, C);
+            add(registers, value, &overflow);
+            break;
+        }
+        case DE:
+        {
+            value = get_16bit_register(registers, D, E);
+            add(registers, value, &overflow);
+            break;
+        }
+        case HL:
+        {
+            value = get_16bit_register(registers, H, L);
+            add(registers, value, &overflow);
+            break;
+        }
         case null:
             break;
         }
@@ -276,9 +302,9 @@ void add(Registers *registers, uint8_t value, bool *overflow)
 int main()
 {
     FlagsRegister flags = {false, false, false, false};
-    Registers registers1 = {12, 0, 0, 0, 5, flags, 0, 0};
+    Registers registers1 = {12, 0, 0, 0, 5, flags, 2, 1};
     CPU cpu1 = {registers1};
-    excecute(&cpu1, ADD, E);
+    excecute(&cpu1, ADD, HL);
     printf("register A: %d\n", cpu1.registers.A);
     printf("ZERO: %d\n", cpu1.registers.F.zero);
     printf("SUBTRACT: %d\n", cpu1.registers.F.subtract);
