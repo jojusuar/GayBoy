@@ -29,7 +29,8 @@ typedef struct
 
 typedef enum
 {
-    ADD
+    ADD,
+    ADDHL
 } Instruction;
 
 typedef enum
@@ -259,22 +260,40 @@ void excecute(CPU *cpu, Instruction instruction, ArithmeticTarget target)
             add(registers, value, &overflow);
             break;
         }
+        case HL:
+        {
+            value = get_16bit_register(registers, H, L);
+            add(registers, value, &overflow);
+            break;
+        }
+        case null:
+            break;
+        }
+        break;
+    }
+    case ADDHL:
+    {
+        bool overflow = false;
+        Registers *registers = &(cpu->registers);
+        uint16_t value;
+        switch (target)
+        {
         case BC:
         {
             value = get_16bit_register(registers, B, C);
-            add(registers, value, &overflow);
+            addhl(registers, value, &overflow);
             break;
         }
         case DE:
         {
             value = get_16bit_register(registers, D, E);
-            add(registers, value, &overflow);
+            addhl(registers, value, &overflow);
             break;
         }
         case HL:
         {
             value = get_16bit_register(registers, H, L);
-            add(registers, value, &overflow);
+            addhl(registers, value, &overflow);
             break;
         }
         case null:
@@ -297,6 +316,20 @@ void add(Registers *registers, uint8_t value, bool *overflow)
     flags->subtract = false;
     flags->carry = *overflow;
     flags->half_carry = ((original & 0xF) + (value & 0xF)) > 0xF;
+}
+
+void addhl(Registers *registers, uint16_t value, bool *overflow)
+{
+    uint16_t original = get_16bit_register(registers, H, L);
+    uint16_t result = original + value;
+    if (result < original || result < value)
+        *overflow = true;
+    set_16bit_register(registers, H, L, result);
+    FlagsRegister *flags = &(registers->F);
+    flags->zero = result == 0;
+    flags->subtract = false;
+    flags->carry = *overflow;
+    flags->half_carry = ((original & 0xFFF) + (value & 0xFFF)) > 0xFFF;
 }
 
 int main()
